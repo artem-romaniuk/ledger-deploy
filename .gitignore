@@ -1,0 +1,11 @@
+.env
+.app.env
+.env.*.local
+
+secrets/
+
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+.DS_Store
