@@ -23,6 +23,8 @@ services:
     <<: *logging
     environment:
       NGINX_ENVSUBST_FILTER: "^LEDGER_"
+      # The Zitadel instance the SPA signs in against: its discovery and token endpoints are fetched cross-origin.
+      LEDGER_ZITADEL_ORIGIN: ${ZITADEL_ORIGIN:?set ZITADEL_ORIGIN in deploy/.env}
     volumes:
       - ./nginx/templates:/etc/nginx/templates:ro
     healthcheck:

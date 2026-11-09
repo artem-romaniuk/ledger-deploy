@@ -47,6 +47,7 @@ and `app` (web, API, database). No service publishes a port.
 | Variable | Notes |
 |----------|-------|
 | `DOMAIN` | Must equal `LEDGER_DOMAIN` in the edge project's `.env`. Feeds the API's CORS origins. |
+| `ZITADEL_ORIGIN` | The Zitadel instance origin, e.g. `https://ledger.zitadel.cloud` (the same as `Zitadel__Issuer`). nginx adds it to the CSP `connect-src`: the web app fetches Zitadel's discovery document and token endpoint cross-origin, and without it the browser blocks the sign-in silently. |
 | `REGISTRY` | Where `ledger-api` and `ledger-web` live, e.g. a Docker Hub user. |
 | `LEDGER_TAG`, `LEDGER_API_TAG`, `LEDGER_WEB_TAG` | Image tags; `deploy.sh` overrides them from its arguments. |
 | `POSTGRES_IMAGE`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | The database; compose builds `ConnectionStrings__Ledger` from them. The password is not in the connection string but in `PGPASSWORD`, which Npgsql reads itself, so a password with `;`, `=` or quotes needs no escaping. `GSS Encryption Mode=Disable` stops Npgsql probing for Kerberos, which the image lacks (`Cannot load library libgssapi_krb5.so.2`). |
@@ -120,4 +121,9 @@ docker compose -f docker-compose.dev.yml up -d
 - `Zitadel__Issuer`, `Zitadel__ProjectId`, `Zitadel__ClientId` set: outside Development every `/api`
   call and `/mcp` require a Zitadel access token. In the Zitadel console the application issues **JWT**
   access tokens, and the project has *Check authorization on Authentication* on.
+- The `ledger-web` image built with the Zitadel settings: they are inlined at build time from the web
+  repository's GitHub variables `ZITADEL_ISSUER`, `ZITADEL_CLIENT_ID`, `ZITADEL_PROJECT_ID` (and optionally
+  `ZITADEL_POST_LOGOUT_REDIRECT_URI`). In the Zitadel console the web app's application (User Agent, PKCE)
+  has the redirect URI `https://<DOMAIN>/auth/callback`, the post-logout URI `https://<DOMAIN>/` and refresh
+  tokens enabled.
 - Never `docker compose down -v` on the server: it deletes the database.
