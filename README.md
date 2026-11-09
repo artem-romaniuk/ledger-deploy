@@ -37,8 +37,14 @@ cp .app.env.example .app.env && chmod 600 .app.env # the API's own configuration
 | `api` | `<REGISTRY>/ledger-api` | The API on 8080, inside the `app` network only. Also runs the outbox and scheduler workers, so it stays a single replica. |
 | `postgres` | `postgres:17-alpine` | The application database, volume `postgres_data`. |
 
-Two networks: `edge` (the external `ledger_edge`, shared with the edge proxy; only `web` is on it)
-and `app` (web, API, database). No service publishes a port.
+Two networks: `edge` (the external `ledger_edge`, shared with the edge proxy: `web` under the alias
+`ledger-web`, and `api`) and `app` (web, API, database). No service publishes a port.
+
+`api` is on `edge` for one reason: Caddy carries the Zitadel host (`auth.cloche.com.ua`) as a network
+alias there, so the API's discovery and JWKS fetches resolve to Caddy's container and stay inside Docker
+instead of leaving through the public IP, which needs hairpin NAT. This only works once `edge/docker-compose.yml`
+gives Caddy that alias on `ledger_edge`; without it the API falls back to public DNS. `migrate` never
+calls Zitadel and stays on `app`.
 
 ## Configuration
 
