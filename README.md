@@ -49,7 +49,16 @@ and `app` (web, API, database). No service publishes a port.
 | `DOMAIN` | Must equal `LEDGER_DOMAIN` in the edge project's `.env`. Feeds the API's CORS origins. |
 | `REGISTRY` | Where `ledger-api` and `ledger-web` live, e.g. a Docker Hub user. |
 | `LEDGER_TAG`, `LEDGER_API_TAG`, `LEDGER_WEB_TAG` | Image tags; `deploy.sh` overrides them from its arguments. |
-| `POSTGRES_IMAGE`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | The database; compose builds `ConnectionStrings__Ledger` from them. |
+| `POSTGRES_IMAGE`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | The database; compose builds `ConnectionStrings__Ledger` from them. The password is not in the connection string but in `PGPASSWORD`, which Npgsql reads itself, so a password with `;`, `=` or quotes needs no escaping. `GSS Encryption Mode=Disable` stops Npgsql probing for Kerberos, which the image lacks (`Cannot load library libgssapi_krb5.so.2`). |
+
+`POSTGRES_PASSWORD` is applied by the `postgres` image **only when the `postgres_data` volume is
+empty**. Changing it in `.env` afterwards does not change the database's password, and `migrate`
+fails with `28P01: password authentication failed`. Change it inside the database too:
+
+```bash
+docker compose exec postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+    -c "ALTER USER \"$POSTGRES_USER\" PASSWORD '<the new password>'"
+```
 
 `.app.env` — passed to `migrate` and `api` as is: `Authentication__Authority`,
 `Authentication__Audience` (the JWT issuer and audience the API validates), `Ledger__BaseCommodity`.
