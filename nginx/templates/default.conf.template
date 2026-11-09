@@ -1,0 +1,37 @@
+set_real_ip_from 10.0.0.0/8;
+set_real_ip_from 172.16.0.0/12;
+set_real_ip_from 192.168.0.0/16;
+real_ip_header X-Forwarded-For;
+real_ip_recursive on;
+
+map $http_x_forwarded_proto $forwarded_proto {
+    default $http_x_forwarded_proto;
+    ""      $scheme;
+}
+
+map $remote_addr $loggable {
+    127.0.0.1 0;
+    default   1;
+}
+
+log_format json_access escape=json '{'
+    '"RequestMethod":"$request_method",'
+    '"RequestHost":"$host",'
+    '"RequestPath":"$request_uri",'
+    '"StatusCode":$status,'
+    '"RequestTime":$request_time,'
+    '"ResponseSize":$body_bytes_sent,'
+    '"UpstreamStatus":"$upstream_status",'
+    '"UpstreamResponseTime":"$upstream_response_time",'
+    '"ClientIp":"$remote_addr",'
+    '"UserAgent":"$http_user_agent",'
+    '"RequestId":"$request_id"'
+'}';
+
+server {
+    listen 80 default_server;
+    server_name _;
+    access_log /dev/stdout json_access if=$loggable;
+
+    include /etc/nginx/conf.d/app.inc;
+}
