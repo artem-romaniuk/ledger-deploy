@@ -60,8 +60,10 @@ docker compose exec postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
     -c "ALTER USER \"$POSTGRES_USER\" PASSWORD '<the new password>'"
 ```
 
-`.app.env` — passed to `migrate` and `api` as is: `Authentication__Authority`,
-`Authentication__Audience` (the JWT issuer and audience the API validates), `Ledger__BaseCommodity`.
+`.app.env` — passed to `migrate` and `api` as is: `Zitadel__Issuer`, `Zitadel__ProjectId`,
+`Zitadel__ClientId` (the Zitadel instance and the ids the API accepts as the token audience),
+`Ledger__BaseCommodity`. Without the three `Zitadel__*` values (or with a non-`https` issuer) both
+`migrate` and `api` refuse to start.
 
 ## nginx
 
@@ -115,6 +117,7 @@ docker compose -f docker-compose.dev.yml up -d
 ## Before you go live
 
 - `POSTGRES_PASSWORD` set and stored in a password manager.
-- `Authentication__Authority` and `Authentication__Audience` set: outside Development every `/api`
-  call requires a bearer token.
+- `Zitadel__Issuer`, `Zitadel__ProjectId`, `Zitadel__ClientId` set: outside Development every `/api`
+  call and `/mcp` require a Zitadel access token. In the Zitadel console the application issues **JWT**
+  access tokens, and the project has *Check authorization on Authentication* on.
 - Never `docker compose down -v` on the server: it deletes the database.
