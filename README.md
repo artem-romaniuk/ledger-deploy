@@ -91,6 +91,18 @@ docker build -t $REGISTRY/ledger-api:latest ../api && docker push $REGISTRY/ledg
 docker build -t $REGISTRY/ledger-web:latest ../web && docker push $REGISTRY/ledger-web:latest
 ```
 
+## Seeding a new database
+
+`migrate` creates the schema only. The starting data — commodities, accounts, the tax profile, entry
+templates, the ESV schedule — comes from the API's `seed` command, run once by hand on a new database:
+
+```bash
+docker compose run --rm migrate seed
+```
+
+It skips whatever already exists, so a second run is harmless. It is not part of `deploy.sh`, because
+on every release it would bring back anything deliberately deleted since.
+
 ## Local development
 
 `docker-compose.dev.yml` is the local database for `dotnet run` (port 5432 on loopback, the
