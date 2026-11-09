@@ -128,8 +128,8 @@ docker compose -f docker-compose.dev.yml up -d
   call and `/mcp` require a Zitadel access token. In the Zitadel console the application issues **JWT**
   access tokens, and the project has *Check authorization on Authentication* on.
 - The `ledger-web` image built with the Zitadel settings: they are inlined at build time from the web
-  repository's GitHub variables `ZITADEL_ISSUER`, `ZITADEL_CLIENT_ID`, `ZITADEL_PROJECT_ID` (and optionally
-  `ZITADEL_POST_LOGOUT_REDIRECT_URI`). In the Zitadel console the web app's application (User Agent, PKCE)
+  repository's GitHub variables `VITE_ZITADEL_ISSUER`, `VITE_ZITADEL_CLIENT_ID`, `VITE_ZITADEL_PROJECT_ID` (and
+  optionally `VITE_ZITADEL_POST_LOGOUT_REDIRECT_URI`). In the Zitadel console the web app's application (User Agent, PKCE)
   has the redirect URI `https://<DOMAIN>/auth/callback`, the post-logout URI `https://<DOMAIN>/` and refresh
   tokens enabled.
 - Never `docker compose down -v` on the server: it deletes the database.
