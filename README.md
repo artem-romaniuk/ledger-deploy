@@ -119,7 +119,7 @@ docker compose -f docker-compose.dev.yml up -d
 
 - `POSTGRES_PASSWORD` set and stored in a password manager.
 - `Zitadel__Issuer`, `Zitadel__ProjectId`, `Zitadel__ClientId` set: outside Development every `/api`
-  call and `/mcp` require a Zitadel access token. In the Zitadel console the application issues **JWT**
+  call requires a Zitadel access token. In the Zitadel console the application issues **JWT**
   access tokens, and the project has *Check authorization on Authentication* on.
 - The `ledger-web` image built with the Zitadel settings: they are inlined at build time from the web
   repository's GitHub variables `ZITADEL_ISSUER`, `ZITADEL_CLIENT_ID`, `ZITADEL_PROJECT_ID` (and optionally
