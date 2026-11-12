@@ -6,8 +6,6 @@ x-api-image: &api-image
 x-api-env: &api-env
   ConnectionStrings__Ledger: "Host=postgres;Port=5432;Database=${POSTGRES_DB:?set POSTGRES_DB in deploy/.env};Username=${POSTGRES_USER:?set POSTGRES_USER in deploy/.env};GSS Encryption Mode=Disable"
   PGPASSWORD: "${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}"
-  Cors__AllowedOrigins__0: "https://${DOMAIN:?set DOMAIN in deploy/.env}"
-  Cors__AllowedOrigins__1: "https://app.${DOMAIN}"
 
 x-logging: &logging
   logging:
@@ -67,6 +65,7 @@ services:
       retries: 3
       start_period: 30s
     networks:
+      - edge
       - app
     depends_on:
       postgres:

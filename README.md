@@ -37,8 +37,14 @@ cp .app.env.example .app.env && chmod 600 .app.env # the API's own configuration
 | `api` | `<REGISTRY>/ledger-api` | The API on 8080, inside the `app` network only. Also runs the outbox and scheduler workers, so it stays a single replica. |
 | `postgres` | `postgres:17-alpine` | The application database, volume `postgres_data`. |
 
-Two networks: `edge` (the external `ledger_edge`, shared with the edge proxy; only `web` is on it)
-and `app` (web, API, database). No service publishes a port.
+Two networks: `edge` (the external `ledger_edge`, shared with the edge proxy: `web` under the alias
+`ledger-web`, and `api`) and `app` (web, API, database). No service publishes a port.
+
+`api` is on `edge` for one reason: Caddy carries the Zitadel host (`auth.cloche.com.ua`) as a network
+alias there, so the API's discovery and JWKS fetches resolve to Caddy's container and stay inside Docker
+instead of leaving through the public IP, which needs hairpin NAT. This only works once `edge/docker-compose.yml`
+gives Caddy that alias on `ledger_edge`; without it the API falls back to public DNS. `migrate` never
+calls Zitadel and stays on `app`.
 
 ## Configuration
 
@@ -122,8 +128,8 @@ docker compose -f docker-compose.dev.yml up -d
   call requires a Zitadel access token. In the Zitadel console the application issues **JWT**
   access tokens, and the project has *Check authorization on Authentication* on.
 - The `ledger-web` image built with the Zitadel settings: they are inlined at build time from the web
-  repository's GitHub variables `ZITADEL_ISSUER`, `ZITADEL_CLIENT_ID`, `ZITADEL_PROJECT_ID` (and optionally
-  `ZITADEL_POST_LOGOUT_REDIRECT_URI`). In the Zitadel console the web app's application (User Agent, PKCE)
+  repository's GitHub variables `VITE_ZITADEL_ISSUER`, `VITE_ZITADEL_CLIENT_ID`, `VITE_ZITADEL_PROJECT_ID` (and
+  optionally `VITE_ZITADEL_POST_LOGOUT_REDIRECT_URI`). In the Zitadel console the web app's application (User Agent, PKCE)
   has the redirect URI `https://<DOMAIN>/auth/callback`, the post-logout URI `https://<DOMAIN>/` and refresh
   tokens enabled.
 - Never `docker compose down -v` on the server: it deletes the database.
