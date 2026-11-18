@@ -71,6 +71,9 @@ docker compose exec postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
 `Zitadel__ClientId` (the Zitadel instance and the ids the API accepts as the token audience),
 `Ledger__BaseCommodity`. Without the three `Zitadel__*` values (or with a non-`https` issuer) both
 `migrate` and `api` refuse to start.
+Optional: `Prices__Finnhub__ApiKey` (US stocks/ETFs) and `Prices__CoinGecko__ApiKey` (crypto, a Demo
+key) turn on the daily price refresh; `Prices__Schedule` (cron in UTC, default `30 22 * * 1-5`) moves it.
+Without a key that feed stays off and those prices stay manual.
 
 ## nginx
 
